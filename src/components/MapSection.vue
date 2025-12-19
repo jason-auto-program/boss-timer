@@ -23,6 +23,8 @@ const bosses = computed({
     }
 });
 
+const currentSound = computed(() => store.mapSounds[props.map.id] || 'none');
+
 const selectSound = (mapId: string, soundId: string, event: Event) => {
     store.setMapSound(mapId, soundId);
     const details = (event.target as HTMLElement).closest('details');

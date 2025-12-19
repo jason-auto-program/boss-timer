@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { supabase } from '../lib/supabase'
 import { type BossConfig } from '../config/bossConfig'
-import { type RealtimeChannel } from '@supabase/supabase-js';
+export type { BossConfig }
 import { playSound, playWarningSequence } from '../utils/audio'; // Added import
 
 export interface BossState {

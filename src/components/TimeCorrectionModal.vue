@@ -31,7 +31,9 @@ const calculatedTime = computed(() => {
         if (!minutesAgo.value) return now;
         return subMinutes(now, Number(minutesAgo.value));
     } else {
-        const [hours, minutes] = absoluteTime.value.split(':').map(Number);
+        const parts = absoluteTime.value.split(':').map(Number);
+        const hours = parts[0] || 0;
+        const minutes = parts[1] || 0;
         return setSeconds(setMinutes(setHours(now, hours), minutes), 0);
     }
 });
