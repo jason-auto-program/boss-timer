@@ -1,0 +1,31 @@
+{
+  "name": "boss-timer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
+    "date-fns": "^4.1.0",
+    "lucide-vue-next": "^0.562.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.24",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.8.1",
+    "autoprefixer": "^10.4.23",
+    "daisyui": "^4.12.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vue-tsc": "^3.1.4"
+  }
+}
