@@ -7,7 +7,7 @@ import BossCard from './components/BossCard.vue';
 import MapSection from './components/MapSection.vue';
 import ConfigModal from './components/ConfigModal.vue';
 import { format } from 'date-fns';
-import { RefreshCw, LayoutList, Grip, Settings } from 'lucide-vue-next';
+import { LayoutList, Grip, Settings } from 'lucide-vue-next';
 
 const store = useBossStore();
 

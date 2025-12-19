@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useBossStore, type BossConfig } from '../stores/bossStore';
 import { MAPS } from '../config/bossConfig';
 import { Trash2, Edit2, Plus, X, Info } from 'lucide-vue-next';
@@ -19,7 +19,7 @@ const isEditing = ref(false);
 const editId = ref<string | null>(null);
 const form = ref({
     name: '',
-    map_id: MAPS[0].id,
+    map_id: MAPS[0]?.id || '',
     level_name: '',
     interval: 10800, // default 180 mins
     is_visible: true // default visible
@@ -30,7 +30,7 @@ const resetForm = () => {
     editId.value = null;
     form.value = {
         name: '',
-        map_id: MAPS[0].id,
+        map_id: MAPS[0]?.id || '',
         level_name: '',
         interval: 10800,
         is_visible: true

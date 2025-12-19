@@ -54,7 +54,7 @@ export const playSound = async (type: string) => {
             break;
 
         case 'pulse':
-            const { gain: pGain, osc: pOsc } = createOsc(ctx, 'sine', 200, now, 0.3);
+            const { gain: pGain } = createOsc(ctx, 'sine', 200, now, 0.3);
             pGain.gain.setValueAtTime(0, now);
             pGain.gain.linearRampToValueAtTime(0.3, now + 0.1);
             pGain.gain.linearRampToValueAtTime(0, now + 0.3);
@@ -67,7 +67,7 @@ export const playSound = async (type: string) => {
             break;
 
         case 'crystal':
-            const { gain: cGain, osc: cOsc } = createOsc(ctx, 'sine', 1800, now, 0.5);
+            const { gain: cGain } = createOsc(ctx, 'sine', 1800, now, 0.5);
             cGain.gain.setValueAtTime(0.1, now);
             cGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
             break;
@@ -114,7 +114,7 @@ export const playSound = async (type: string) => {
     }
 };
 
-let currentSequenceTimeout: any = null;
+
 
 // New Helper for Warning Sequence
 // User Request: Play 10 times, interval 0.7s
