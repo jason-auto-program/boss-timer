@@ -99,17 +99,8 @@ const finishEdit = () => {
     newS = Math.min(59, val);
   }
 
-  // Calculate new remaining duration
-  // Calculate new remaining duration
-  const newRemainingMs = (newH * 3600 + newM * 60 + newS) * 1000;
-  
-  // Update DB
-  // Use the pre-calculated effective interval from store (includes Event Mode multiplier)
-  const effectiveIntervalMs = props.boss.effectiveInterval * 1000;
-  const now = Date.now();
-  const newKillTime = now + newRemainingMs - effectiveIntervalMs;
-  
-  store.updateKillTime(props.boss.id, newKillTime);
+  // Update DB via centralized store action to ensure correct interval/multiplier logic
+  store.setRemainingSeconds(props.boss.id, newH * 3600 + newM * 60 + newS);
   
   editingPart.value = null;
 };

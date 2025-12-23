@@ -415,6 +415,20 @@ export const useBossStore = defineStore('boss', {
                 this.error = err.message
                 this.dbStates[bossId].is_pinned = oldPin
             }
+        },
+
+        async setRemainingSeconds(bossId: string, seconds: number) {
+            const config = this.bossConfigs.find(c => c.id === bossId);
+            if (!config) return;
+
+            // Recalculate effective interval with the same logic as the getter
+            const multiplier = this.isEventMode ? (2 / 3) : 1.0;
+            const effectiveInterval = (config.interval * multiplier) - 20;
+
+            const now = Date.now();
+            const newKillTime = now + (seconds * 1000) - (effectiveInterval * 1000);
+
+            await this.updateKillTime(bossId, newKillTime);
         }
     }
 })
