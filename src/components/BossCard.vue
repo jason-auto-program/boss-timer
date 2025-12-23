@@ -12,23 +12,35 @@ const store = useBossStore();
 // Status Logic
 const statusColor = computed(() => {
   switch (props.boss.status) {
-    case 'ready': return 'bg-green-500/10 border-green-500/20'; // Very subtle green
-    case 'critical': return 'bg-orange-500/10 border-orange-500/20 animate-breathe'; // Breathing orange
-    case 'soon': return 'bg-blue-500/10 border-blue-500/15'; // Subtle blue
-    case 'wait': return 'bg-white/60 border-slate-200/50 hover:bg-white/80'; // Glassy white
-    case 'missed': return 'bg-slate-200/50 border-slate-300/50 text-slate-400'; // Gray/Missed
-    default: return 'bg-white/60 border-slate-200';
+    case 'ready': return 'bg-green-500/10';
+    case 'critical': return 'bg-orange-500/10 animate-breathe';
+    case 'soon': return 'bg-blue-500/10';
+    case 'wait': return 'bg-white/60 hover:bg-white/80';
+    case 'missed': return 'bg-slate-200/50 text-slate-400';
+    default: return 'bg-white/60';
   }
 });
 
 const borderClass = computed(() => {
+    // If color_index is 0, use status-based borders
+    if (props.boss.color_index === 0) {
+        switch (props.boss.status) {
+            case 'ready': return 'border-green-500/30';
+            case 'critical': return 'border-orange-500/40';
+            case 'soon': return 'border-blue-500/30';
+            case 'wait': return 'border-slate-200';
+            case 'missed': return 'border-slate-300';
+            default: return 'border-slate-200';
+        }
+    }
+    // Custom colors (Prominent)
     switch (props.boss.color_index) {
-        case 1: return 'border-red-500/60 shadow-red-100/30';
-        case 2: return 'border-emerald-500/60 shadow-emerald-100/30';
-        case 3: return 'border-blue-500/60 shadow-blue-100/30';
-        case 4: return 'border-amber-500/60 shadow-amber-100/30';
-        case 5: return 'border-purple-500/60 shadow-purple-100/30';
-        default: return ''; // Standard from statusColor
+        case 1: return '!border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]';
+        case 2: return '!border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.2)]';
+        case 3: return '!border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]';
+        case 4: return '!border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]';
+        case 5: return '!border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.2)]';
+        default: return 'border-slate-200';
     }
 });
 
