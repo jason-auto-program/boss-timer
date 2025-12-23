@@ -52,17 +52,15 @@ export const useBossStore = defineStore('boss', {
                 const is_pinned = dbState?.is_pinned || false
 
                 // Calculate refresh time
+                const multiplier = state.isEventMode ? (2 / 3) : 1.0;
+                const effectiveInterval = (config.interval * multiplier) - 20;
+
                 let nextRefreshTime: number | null = null
                 let remainingSeconds = 0
                 let status: 'ready' | 'critical' | 'soon' | 'wait' | 'missed' = 'ready'
 
                 if (last_killed_at) {
                     const killedAtMs = new Date(last_killed_at).getTime()
-                    // interval is in seconds, convert to ms
-                    // Global rule: All bosses refresh 20s earlier AND Multiplier
-                    // (Interval * Multiplier) - 20s
-                    const multiplier = state.isEventMode ? (2 / 3) : 1.0;
-                    const effectiveInterval = (config.interval * multiplier) - 20;
                     nextRefreshTime = killedAtMs + (effectiveInterval * 1000)
                     const remainingMs = nextRefreshTime - state.now
                     remainingSeconds = Math.ceil(remainingMs / 1000)
