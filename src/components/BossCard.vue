@@ -104,10 +104,10 @@ const finishEdit = () => {
   const newRemainingMs = (newH * 3600 + newM * 60 + newS) * 1000;
   
   // Update DB
-  // Global rule: effectiveInterval = interval - 20
-  const effectiveInterval = props.boss.interval - 20;
+  // Use the pre-calculated effective interval from store (includes Event Mode multiplier)
+  const effectiveIntervalMs = props.boss.effectiveInterval * 1000;
   const now = Date.now();
-  const newKillTime = now + newRemainingMs - (effectiveInterval * 1000);
+  const newKillTime = now + newRemainingMs - effectiveIntervalMs;
   
   store.updateKillTime(props.boss.id, newKillTime);
   

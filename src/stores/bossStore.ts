@@ -20,6 +20,7 @@ export interface BossView extends BossConfig {
     nextRefreshTime: number | null // timestamp
     remainingSeconds: number
     status: 'ready' | 'critical' | 'soon' | 'wait' | 'missed'
+    effectiveInterval: number
 }
 
 export const useBossStore = defineStore('boss', {
@@ -90,7 +91,7 @@ export const useBossStore = defineStore('boss', {
                     is_pinned,
                     color_index: dbState?.color_index || 0,
                     nextRefreshTime,
-                    remainingSeconds,
+                    effectiveInterval,
                     status
                 }
             }).filter(b => b.is_visible !== false).sort((a, b) => {
