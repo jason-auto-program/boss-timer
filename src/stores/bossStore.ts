@@ -91,6 +91,7 @@ export const useBossStore = defineStore('boss', {
                     is_pinned,
                     color_index: dbState?.color_index || 0,
                     nextRefreshTime,
+                    remainingSeconds,
                     effectiveInterval,
                     status
                 }
