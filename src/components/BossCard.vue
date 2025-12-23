@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, nextTick } from 'vue';
 import { type BossView, useBossStore } from '../stores/bossStore';
-import { Star } from 'lucide-vue-next';
+import { Star, Palette } from 'lucide-vue-next';
 
 const props = defineProps<{
   boss: BossView;
@@ -19,6 +19,17 @@ const statusColor = computed(() => {
     case 'missed': return 'bg-slate-200/50 border-slate-300/50 text-slate-400'; // Gray/Missed
     default: return 'bg-white/60 border-slate-200';
   }
+});
+
+const borderClass = computed(() => {
+    switch (props.boss.color_index) {
+        case 1: return 'border-red-500/60 shadow-red-100/30';
+        case 2: return 'border-emerald-500/60 shadow-emerald-100/30';
+        case 3: return 'border-blue-500/60 shadow-blue-100/30';
+        case 4: return 'border-amber-500/60 shadow-amber-100/30';
+        case 5: return 'border-purple-500/60 shadow-purple-100/30';
+        default: return ''; // Standard from statusColor
+    }
 });
 
 // Timer Decomposition
@@ -107,8 +118,8 @@ const pad = (n: number) => n.toString().padStart(2, '0');
 
 <template>
   <div 
-    class="relative overflow-hidden transition-all duration-300 rounded-lg p-2 select-none group border shadow-sm backdrop-blur-xl"
-    :class="statusColor"
+    class="relative overflow-hidden transition-all duration-300 rounded-xl p-2 select-none group border shadow-sm backdrop-blur-xl"
+    :class="[statusColor, borderClass, props.boss.color_index > 0 ? 'border-2' : 'border']"
     @dblclick="handleDoubleClick"
   >
     <!-- Header: Apple Style (Clean, One Line, Compact) -->
@@ -124,14 +135,26 @@ const pad = (n: number) => n.toString().padStart(2, '0');
            </span>
       </div>
       
-      <!-- Star Icon (Modern, Subtle) -->
-      <button 
-        @click.stop="handlePin" 
-        class="btn btn-ghost btn-xs btn-circle h-5 w-5 min-h-0 shrink-0 transition-colors"
-        :class="boss.is_pinned ? 'text-amber-400' : 'text-slate-300 hover:text-amber-300'"
-      >
-          <Star class="w-3.5 h-3.5 transition-transform active:scale-90" :class="{ 'fill-current': boss.is_pinned }" />
-      </button>
+      <!-- Actions (Modern, Subtle) -->
+      <div class="flex items-center gap-0.5 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+          <!-- Color Cycle -->
+          <button 
+            @click.stop="store.cycleBossColor(boss.id)" 
+            class="btn btn-ghost btn-xs btn-circle h-5 w-5 min-h-0"
+            title="切换边框颜色"
+          >
+              <Palette class="w-3.5 h-3.5" :class="boss.color_index > 0 ? 'text-slate-600' : 'text-slate-300'" />
+          </button>
+          
+          <!-- Star Icon -->
+          <button 
+            @click.stop="handlePin" 
+            class="btn btn-ghost btn-xs btn-circle h-5 w-5 min-h-0"
+            :class="boss.is_pinned ? 'text-amber-400' : 'text-slate-300 hover:text-amber-300'"
+          >
+              <Star class="w-3.5 h-3.5 transition-transform active:scale-90" :class="{ 'fill-current': boss.is_pinned }" />
+          </button>
+      </div>
     </div>
 
     <!-- Timer Area (Compact) -->

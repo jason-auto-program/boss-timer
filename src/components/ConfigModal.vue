@@ -88,23 +88,21 @@ const intervalMinutes = computed({
       <!-- Global Settings Bar -->
       <div class="px-4 py-3 bg-slate-50 border-b flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center gap-2">
-              <span class="font-bold text-sm text-slate-700">🌍 全局倍率 (活动)</span>
-              <div class="tooltip tooltip-right font-normal" data-tip="输入 0.5 表示时间减半 (180m -> 90m)">
+              <span class="font-bold text-sm text-slate-700">🎉 活动模式 (加速)</span>
+              <div class="tooltip tooltip-right font-normal" data-tip="开启后：6h -> 4h，3h -> 2h (自动应用 2/3 倍率)">
                   <Info class="w-4 h-4 text-slate-400 cursor-help" />
               </div>
           </div>
-          <div class="flex items-center gap-2">
-              <input 
-                  type="number" 
-                  step="0.1" 
-                  min="0.1"
-                  class="input input-sm input-bordered w-24 text-center font-bold" 
-                  :value="store.globalMultiplier"
-                  @input="e => store.setGlobalMultiplier(parseFloat((e.target as HTMLInputElement).value) || 1)"
-              />
-              <span class="text-xs text-slate-500 w-24">
-                 {{ store.globalMultiplier < 1 ? '🔥 加速模式' : (store.globalMultiplier > 1 ? '🐢 减速模式' : '正常模式') }}
+          <div class="flex items-center gap-4">
+              <span class="text-xs text-slate-500">
+                  {{ store.isEventMode ? '🔥 已开启加速' : '正常模式' }}
               </span>
+              <input 
+                  type="checkbox" 
+                  class="toggle toggle-primary toggle-sm"
+                  :checked="store.isEventMode"
+                  @change="e => store.setEventMode((e.target as HTMLInputElement).checked)"
+              />
           </div>
       </div>
 

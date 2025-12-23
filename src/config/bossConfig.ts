@@ -10,6 +10,7 @@ export interface BossConfig {
 export const MAPS = [
     { id: 'xiuzhen', name: '修真' },
     { id: 'wusheng', name: '武圣' },
+    { id: 'jiuzhongtian', name: '九重天' },
     { id: 'jindi', name: '禁地' },
     { id: 'other', name: '其他' },
 ];

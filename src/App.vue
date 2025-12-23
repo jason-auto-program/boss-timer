@@ -8,6 +8,7 @@ import MapSection from './components/MapSection.vue';
 import ConfigModal from './components/ConfigModal.vue';
 import { format } from 'date-fns';
 import { LayoutList, Grip, Settings } from 'lucide-vue-next';
+import draggable from 'vuedraggable';
 
 const store = useBossStore();
 
@@ -38,6 +39,13 @@ const sortedSoonBosses = computed(() => {
     return store.bossListView
         .filter(b => !b.is_pinned)
         .sort((a, b) => a.remainingSeconds - b.remainingSeconds);
+});
+
+const pinnedList = computed({
+    get: () => pinnedBosses.value,
+    set: (val) => {
+        store.updatePartialOrder(val.map(b => b.id));
+    }
 });
 
 // Actions
@@ -87,13 +95,19 @@ const sortedSoonBosses = computed(() => {
             <h2 class="text-xs font-bold text-amber-500 mb-2 flex items-center gap-2 px-1">
                  ★ 特别关注
             </h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-2">
-                <BossCard 
-                    v-for="boss in pinnedBosses" 
-                    :key="boss.id" 
-                    :boss="boss"
-                />
-            </div>
+            <draggable 
+                v-model="pinnedList" 
+                item-key="id"
+                class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-2"
+                :animation="200"
+                ghost-class="opacity-50"
+            >
+                <template #item="{ element: boss }">
+                    <BossCard 
+                        :boss="boss"
+                    />
+                </template>
+            </draggable>
         </div>
 
         <!-- Category View: Flattened Maps -->

@@ -9,11 +9,14 @@ export interface BossState {
     boss_id: string
     last_killed_at: string | null // ISO string from DB
     is_pinned: boolean
+    color_index: number
 }
+
 
 export interface BossView extends BossConfig {
     last_killed_at: string | null
     is_pinned: boolean
+    color_index: number
     nextRefreshTime: number | null // timestamp
     remainingSeconds: number
     status: 'ready' | 'critical' | 'soon' | 'wait' | 'missed'
@@ -29,7 +32,7 @@ export const useBossStore = defineStore('boss', {
         timerInterval: null as number | null, // Changed type to number | null
         // Sound Settings
         mapSounds: {} as Record<string, string>,
-        globalMultiplier: 1.0,
+        isEventMode: false,
         warnedBosses: new Set<string>(),
         // Card Order Persistence
         cardOrder: JSON.parse(localStorage.getItem('boss-card-order') || '[]') as string[],
@@ -57,7 +60,8 @@ export const useBossStore = defineStore('boss', {
                     // interval is in seconds, convert to ms
                     // Global rule: All bosses refresh 20s earlier AND Multiplier
                     // (Interval * Multiplier) - 20s
-                    const effectiveInterval = (config.interval * state.globalMultiplier) - 20;
+                    const multiplier = state.isEventMode ? (2 / 3) : 1.0;
+                    const effectiveInterval = (config.interval * multiplier) - 20;
                     nextRefreshTime = killedAtMs + (effectiveInterval * 1000)
                     const remainingMs = nextRefreshTime - state.now
                     remainingSeconds = Math.ceil(remainingMs / 1000)
@@ -84,6 +88,7 @@ export const useBossStore = defineStore('boss', {
                     ...config,
                     last_killed_at,
                     is_pinned,
+                    color_index: dbState?.color_index || 0,
                     nextRefreshTime,
                     remainingSeconds,
                     status
@@ -120,7 +125,10 @@ export const useBossStore = defineStore('boss', {
                     (payload) => {
                         const newRow = payload.new as BossState
                         if (newRow && newRow.boss_id) {
-                            this.dbStates[newRow.boss_id] = newRow
+                            this.dbStates[newRow.boss_id] = {
+                                ...this.dbStates[newRow.boss_id],
+                                ...newRow
+                            }
                         }
                     }
                 )
@@ -223,19 +231,39 @@ export const useBossStore = defineStore('boss', {
             }
         },
 
-        async setGlobalMultiplier(val: number) {
-            this.globalMultiplier = val;
+        async setEventMode(val: boolean) {
+            this.isEventMode = val;
             try {
                 const { error } = await supabase.from('map_settings').upsert({
-                    map_id: 'GLOBAL_MULTIPLIER',
-                    sound_id: val.toString()
+                    map_id: 'EVENT_MODE',
+                    sound_id: val ? 'true' : 'false'
                 })
                 if (error) throw error
             } catch (err: any) {
-                console.error('Save multiplier error:', err)
-                if (err.message && !err.message.includes('relation "map_settings" does not exist')) {
-                    this.error = `保存全局倍率失败: ${err.message}`
-                }
+                console.error('Save event mode error:', err)
+                this.error = `保存活动模式失败: ${err.message}`
+            }
+        },
+
+        async cycleBossColor(bossId: string) {
+            if (!this.dbStates[bossId]) {
+                this.dbStates[bossId] = { boss_id: bossId, last_killed_at: null, is_pinned: false, color_index: 0 }
+            }
+            const current = this.dbStates[bossId].color_index || 0;
+            const next = (current + 1) % 6;
+            this.dbStates[bossId].color_index = next;
+
+            try {
+                const { error } = await supabase.from('boss_states').upsert({
+                    boss_id: bossId,
+                    color_index: next,
+                    last_killed_at: this.dbStates[bossId].last_killed_at,
+                    is_pinned: this.dbStates[bossId].is_pinned
+                })
+                if (error) throw error
+            } catch (err: any) {
+                console.error('Cycle color error:', err)
+                this.dbStates[bossId].color_index = current;
             }
         },
 
@@ -246,8 +274,10 @@ export const useBossStore = defineStore('boss', {
                 if (data) {
                     const soundMap: Record<string, string> = {}
                     data.forEach((row: any) => {
-                        if (row.map_id === 'GLOBAL_MULTIPLIER') {
-                            this.globalMultiplier = parseFloat(row.sound_id) || 1.0;
+                        if (row.map_id === 'EVENT_MODE') {
+                            this.isEventMode = row.sound_id === 'true';
+                        } else if (row.map_id === 'GLOBAL_MULTIPLIER') {
+                            // Backward compatibility
                         } else {
                             soundMap[row.map_id] = row.sound_id
                         }
@@ -283,7 +313,7 @@ export const useBossStore = defineStore('boss', {
             try {
                 const { data, error } = await supabase
                     .from('boss_states')
-                    .select('boss_id, last_killed_at, is_pinned')
+                    .select('boss_id, last_killed_at, is_pinned, color_index')
 
                 if (error) throw error
 
@@ -339,7 +369,7 @@ export const useBossStore = defineStore('boss', {
 
             // Optimistic update
             if (!this.dbStates[bossId]) {
-                this.dbStates[bossId] = { boss_id: bossId, last_killed_at: null, is_pinned: false }
+                this.dbStates[bossId] = { boss_id: bossId, last_killed_at: null, is_pinned: false, color_index: 0 }
             }
             const oldTime = this.dbStates[bossId].last_killed_at
             this.dbStates[bossId].last_killed_at = isoTime
@@ -362,7 +392,7 @@ export const useBossStore = defineStore('boss', {
 
         async togglePin(bossId: string) {
             if (!this.dbStates[bossId]) {
-                this.dbStates[bossId] = { boss_id: bossId, last_killed_at: null, is_pinned: false }
+                this.dbStates[bossId] = { boss_id: bossId, last_killed_at: null, is_pinned: false, color_index: 0 }
             }
             const oldPin = this.dbStates[bossId].is_pinned
             const newPin = !oldPin
@@ -375,7 +405,8 @@ export const useBossStore = defineStore('boss', {
                     .upsert({
                         boss_id: bossId,
                         is_pinned: newPin,
-                        last_killed_at: currentState.last_killed_at
+                        last_killed_at: currentState?.last_killed_at || null,
+                        color_index: currentState?.color_index || 0
                     })
 
                 if (error) throw error
