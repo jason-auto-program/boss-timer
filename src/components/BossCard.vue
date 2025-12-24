@@ -2,6 +2,7 @@
 import { computed, ref, nextTick } from 'vue';
 import { type BossView, useBossStore } from '../stores/bossStore';
 import { Star, Palette } from 'lucide-vue-next';
+import { format } from 'date-fns';
 
 const props = defineProps<{
   boss: BossView;
@@ -117,6 +118,11 @@ const handlePin = () => {
 // Helper for padding
 const pad = (n: number) => n.toString().padStart(2, '0');
 
+const refreshTimeStr = computed(() => {
+    if (!props.boss.nextRefreshTime) return '--:--:--';
+    return format(props.boss.nextRefreshTime, 'HH:mm:ss');
+});
+
 </script>
 
 <template>
@@ -176,55 +182,61 @@ const pad = (n: number) => n.toString().padStart(2, '0');
             </span>
         </div>
 
-        <!-- Case 2: Countdown (Granular Edit) -->
-        <div v-else class="flex items-center text-2xl font-mono font-bold tracking-tight text-slate-700/90 font-numeric tabular-nums select-none">
-            
-            <!-- Hours -->
-            <div class="relative cursor-pointer hover:bg-slate-100/50 rounded px-0.5 transition-colors" @click.stop="startEdit('h')">
-                <span :class="{ 'opacity-0': editingPart === 'h' }">{{ pad(timeParts.h) }}</span>
-                <input 
-                    v-if="editingPart === 'h'"
-                    ref="editInputRef"
-                    v-model="tempValue"
-                    @blur="finishEdit"
-                    @keydown.enter="finishEdit"
-                    type="number"
-                    class="absolute inset-0 w-full h-full text-center bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500/20 rounded p-0 m-0 no-spin appearance-none"
-                />
+        <!-- Case 2: Countdown (Granular Edit) or Absolute Time -->
+        <div v-else class="flex flex-col items-center">
+            <!-- Absolute Time View -->
+            <div v-if="store.showAbsoluteTime" class="text-2xl font-mono font-bold tracking-tight text-slate-700/90 font-numeric tabular-nums">
+                {{ refreshTimeStr }}
             </div>
 
-            <span class="mx-0.5 text-slate-400/50 text-lg">:</span>
+            <!-- Countdown View -->
+            <div v-else class="flex items-center text-2xl font-mono font-bold tracking-tight text-slate-700/90 font-numeric tabular-nums select-none">
+                <!-- Hours -->
+                <div class="relative cursor-pointer hover:bg-slate-100/50 rounded px-0.5 transition-colors" @click.stop="startEdit('h')">
+                    <span :class="{ 'opacity-0': editingPart === 'h' }">{{ pad(timeParts.h) }}</span>
+                    <input 
+                        v-if="editingPart === 'h'"
+                        ref="editInputRef"
+                        v-model="tempValue"
+                        @blur="finishEdit"
+                        @keydown.enter="finishEdit"
+                        type="number"
+                        class="absolute inset-0 w-full h-full text-center bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500/20 rounded p-0 m-0 no-spin appearance-none"
+                    />
+                </div>
 
-            <!-- Minutes -->
-            <div class="relative cursor-pointer hover:bg-slate-100/50 rounded px-0.5 transition-colors" @click.stop="startEdit('m')">
-                <span :class="{ 'opacity-0': editingPart === 'm' }">{{ pad(timeParts.m) }}</span>
-                 <input 
-                    v-if="editingPart === 'm'"
-                    ref="editInputRef"
-                    v-model="tempValue"
-                    @blur="finishEdit"
-                    @keydown.enter="finishEdit"
-                    type="number"
-                    class="absolute inset-0 w-full h-full text-center bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500/20 rounded p-0 m-0 no-spin appearance-none"
-                />
+                <span class="mx-0.5 text-slate-400/50 text-lg">:</span>
+
+                <!-- Minutes -->
+                <div class="relative cursor-pointer hover:bg-slate-100/50 rounded px-0.5 transition-colors" @click.stop="startEdit('m')">
+                    <span :class="{ 'opacity-0': editingPart === 'm' }">{{ pad(timeParts.m) }}</span>
+                     <input 
+                        v-if="editingPart === 'm'"
+                        ref="editInputRef"
+                        v-model="tempValue"
+                        @blur="finishEdit"
+                        @keydown.enter="finishEdit"
+                        type="number"
+                        class="absolute inset-0 w-full h-full text-center bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500/20 rounded p-0 m-0 no-spin appearance-none"
+                    />
+                </div>
+
+                <span class="mx-0.5 text-slate-400/50 text-lg">:</span>
+
+                <!-- Seconds -->
+                <div class="relative cursor-pointer hover:bg-slate-100/50 rounded px-0.5 transition-colors" @click.stop="startEdit('s')">
+                    <span :class="{ 'opacity-0': editingPart === 's' }">{{ pad(timeParts.s) }}</span>
+                     <input 
+                        v-if="editingPart === 's'"
+                        ref="editInputRef"
+                        v-model="tempValue"
+                        @blur="finishEdit"
+                        @keydown.enter="finishEdit"
+                        type="number"
+                        class="absolute inset-0 w-full h-full text-center bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500/20 rounded p-0 m-0 no-spin appearance-none"
+                    />
+                </div>
             </div>
-
-            <span class="mx-0.5 text-slate-400/50 text-lg">:</span>
-
-            <!-- Seconds -->
-            <div class="relative cursor-pointer hover:bg-slate-100/50 rounded px-0.5 transition-colors" @click.stop="startEdit('s')">
-                <span :class="{ 'opacity-0': editingPart === 's' }">{{ pad(timeParts.s) }}</span>
-                 <input 
-                    v-if="editingPart === 's'"
-                    ref="editInputRef"
-                    v-model="tempValue"
-                    @blur="finishEdit"
-                    @keydown.enter="finishEdit"
-                    type="number"
-                    class="absolute inset-0 w-full h-full text-center bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500/20 rounded p-0 m-0 no-spin appearance-none"
-                />
-            </div>
-
         </div>
     </div>
     

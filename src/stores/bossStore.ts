@@ -37,6 +37,7 @@ export const useBossStore = defineStore('boss', {
         warnedBosses: new Set<string>(),
         // Card Order Persistence
         cardOrder: JSON.parse(localStorage.getItem('boss-card-order') || '[]') as string[],
+        showAbsoluteTime: localStorage.getItem('boss-show-absolute-time') === 'true',
     }),
 
     getters: {
@@ -429,6 +430,11 @@ export const useBossStore = defineStore('boss', {
             const newKillTime = now + (seconds * 1000) - (effectiveInterval * 1000);
 
             await this.updateKillTime(bossId, newKillTime);
+        },
+
+        toggleTimeDisplay() {
+            this.showAbsoluteTime = !this.showAbsoluteTime;
+            localStorage.setItem('boss-show-absolute-time', this.showAbsoluteTime.toString());
         }
     }
 })

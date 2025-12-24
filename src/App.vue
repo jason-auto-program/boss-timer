@@ -81,7 +81,16 @@ const pinnedList = computed({
             </div>
         </div>
         
-        <div class="navbar-end">
+        <div class="navbar-end gap-2">
+            <div class="flex items-center gap-2 bg-slate-100/50 px-2 py-1 rounded-lg border border-slate-200/50">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">真实时间</span>
+                <input 
+                    type="checkbox" 
+                    class="toggle toggle-xs toggle-primary" 
+                    :checked="store.showAbsoluteTime"
+                    @change="store.toggleTimeDisplay()"
+                />
+            </div>
             <button class="btn btn-ghost btn-circle btn-sm" @click="isConfigOpen = true">
                 <Settings class="w-5 h-5 text-slate-400" />
             </button>
