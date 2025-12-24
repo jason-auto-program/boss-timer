@@ -76,7 +76,7 @@ const pinnedList = computed({
         </div>
         
         <div class="navbar-center">
-            <div class="text-xl font-mono font-bold text-slate-400">
+            <div class="text-3xl font-mono font-black text-slate-600 tracking-wider">
                 {{ currentTime }}
             </div>
         </div>
