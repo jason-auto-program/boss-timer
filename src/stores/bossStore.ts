@@ -35,6 +35,7 @@ export const useBossStore = defineStore('boss', {
         mapSounds: {} as Record<string, string>,
         isEventMode: false,
         warnedBosses: new Set<string>(),
+        notifiedReadyBosses: new Set<string>(),
         // Card Order Persistence
         cardOrder: JSON.parse(localStorage.getItem('boss-card-order') || '[]') as string[],
         showAbsoluteTime: localStorage.getItem('boss-show-absolute-time') === 'true',
@@ -209,6 +210,19 @@ export const useBossStore = defineStore('boss', {
                     }
                 } else {
                     this.warnedBosses.delete(boss.id);
+                }
+
+                // Ding-dong logic for 'ready' status
+                if (boss.status === 'ready') {
+                    if (!this.notifiedReadyBosses.has(boss.id)) {
+                        this.notifiedReadyBosses.add(boss.id);
+                        // Check if it's a real transition to ready (not just missing data)
+                        // In practice, we just play it一旦 it becomes ready.
+                        playSound('dingdong');
+                    }
+                } else {
+                    // Clear the notification flag once it's killed/reset so it can trigger next time
+                    this.notifiedReadyBosses.delete(boss.id);
                 }
             });
         },

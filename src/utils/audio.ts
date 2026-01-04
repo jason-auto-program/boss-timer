@@ -111,6 +111,18 @@ export const playSound = async (type: string) => {
             gGain.gain.setValueAtTime(0.2, now);
             gGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
             break;
+
+        case 'dingdong':
+            // "Ding" (Higher)
+            const { gain: d1Gain } = createOsc(ctx, 'sine', 880, now, 0.6);
+            d1Gain.gain.setValueAtTime(0.1, now);
+            d1Gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+            // "Dong" (Lower)
+            const { gain: d2Gain } = createOsc(ctx, 'sine', 554, now + 0.3, 0.8);
+            d2Gain.gain.setValueAtTime(0.1, now + 0.3);
+            d2Gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3 + 0.8);
+            break;
     }
 };
 
